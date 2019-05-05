@@ -1,0 +1,177 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "SDL/SDL.h"
+#include"SDL/SDL_image.h"
+#include "SDL/SDL_mixer.h"
+#include <SDL/SDL_rotozoom.h>
+
+
+
+
+int main ()
+{
+SDL_Surface *screen=NULL;
+SDL_Surface *image=NULL;
+SDL_Surface *mini_map=NULL;
+SDL_Surface *point=NULL;
+SDL_Surface *detective=NULL;
+SDL_Surface *arij=NULL;
+SDL_Surface *arij_petit=NULL;
+SDL_Surface *kalb=NULL;
+SDL_Surface *rota=NULL;
+Mix_Music *song=NULL;
+SDL_Rect positionecran,positiondet,pospoint,posarij,pospetit;
+SDL_Event event;
+double a=0,r=1;
+int teston=0;
+int done=1;
+if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT,MIX_DEFAULT_CHANNELS, 1024)==-1)
+	{
+		printf("%s",Mix_GetError());
+	}
+song=Mix_LoadMUS("music.mp3");
+Mix_PlayMusic(song,0);
+screen = SDL_SetVideoMode(1800,800,32,SDL_HWSURFACE|SDL_DOUBLEBUF);
+if(SDL_Init(SDL_INIT_VIDEO)!=0){
+
+printf("Unable to set 1350x400 video :%s\n",SDL_GetError());
+return -1 ;
+}
+arij=IMG_Load("arij.png");
+arij_petit=IMG_Load("miniarij.png");
+ image=IMG_Load("back.bmp");
+ point=IMG_Load("minidet.bmp");
+ kalb=IMG_Load("kalb.png");
+if(image==NULL){
+printf("Unable to load bitmap :%s\n",SDL_GetError());
+return -1;
+}
+mini_map=IMG_Load("miniback.bmp");
+
+positionecran.x=0;
+positionecran.y=0;
+SDL_BlitSurface(image,NULL,screen,&positionecran);
+ positiondet.x=30;
+positiondet.y=200;
+
+
+
+posarij.x=70;
+posarij.y=200;
+detective=SDL_LoadBMP("detective.bmp");
+if(detective==NULL){
+printf("Unable to load bitmap :%s\n",SDL_GetError());
+return -1;
+}
+SDL_SetColorKey(detective,SDL_SRCCOLORKEY,SDL_MapRGB(detective->format,255,255,255));
+SDL_SetColorKey(point,SDL_SRCCOLORKEY,SDL_MapRGB(point->format,255,255,255));
+SDL_SetColorKey(arij,SDL_SRCCOLORKEY,SDL_MapRGB(arij->format,255,255,255));
+SDL_SetColorKey(arij_petit,SDL_SRCCOLORKEY,SDL_MapRGB(arij_petit->format,255,255,255));
+
+SDL_BlitSurface(detective,NULL,screen,&positiondet);
+SDL_EnableKeyRepeat(10,10);
+
+    while (done)
+
+    {
+
+        SDL_PollEvent(&event);
+        switch(event.type)
+        {
+
+            case SDL_QUIT:
+
+                done = 0;
+                break;
+
+        case SDL_KEYDOWN:
+switch (event.key.keysym.sym)
+{
+    case SDLK_ESCAPE:
+
+        done = 0;
+        break;
+
+case SDLK_UP :
+positiondet.y-=10;
+break;
+case SDLK_DOWN :
+
+positiondet.y+=10;
+break;
+
+case SDLK_RIGHT :
+
+positiondet.x+=10;
+break;
+
+case SDLK_LEFT :
+
+positiondet.x-=10;
+break;
+
+
+
+case SDLK_z:
+posarij.y-=10;
+break;
+case SDLK_s:
+
+posarij.y+=10;
+break;
+
+case SDLK_d:
+
+posarij.x+=10;
+break;
+
+case SDLK_q:
+
+posarij.x-=10;
+break;
+
+
+default:
+break;
+}
+break;
+default:
+break;
+}
+a+=1;
+if(teston==0){
+r+=0.01;
+if(r>=5.01) teston =1;
+}
+if(teston==1){
+	r-=0.01;
+	if(r<=1.01) teston=0;
+}
+printf("%f\n",a);
+rota=rotozoomSurface (kalb, a,r, 1);
+
+
+pospoint.x=(positiondet.x)*0.06;
+pospoint.y=40;
+pospetit.x=(posarij.x)*0.06;
+pospetit.y=40;
+SDL_BlitSurface(image,NULL,screen,&positionecran);
+SDL_BlitSurface(mini_map,NULL,screen,0);
+SDL_BlitSurface(point,NULL,screen,&pospoint);
+SDL_BlitSurface(arij,NULL,screen,&posarij);
+SDL_BlitSurface(arij_petit,NULL,screen,&pospetit);
+SDL_BlitSurface(detective,NULL,screen,&positiondet);
+SDL_BlitSurface(rota,NULL,screen,NULL);
+SDL_Flip(screen);
+
+    }
+
+
+
+
+Mix_FreeMusic(song);
+SDL_FreeSurface(image);
+SDL_FreeSurface(detective);
+
+return 0 ;
+}
